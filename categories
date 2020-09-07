@@ -1,0 +1,27 @@
+import sys
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+glueContext = GlueContext(SparkContext.getOrCreate())  
+from pyspark.sql.functions import concat, lit, upper, regexp_replace
+spark = glueContext.spark_session
+sc = SparkContext.getOrCreate()
+
+job = Job(glueContext)
+
+#Get source table in Athena
+database = "test"
+table = "categories"
+
+categories = glueContext.create_dynamic_frame_from_catalog(database=database, table_name=table)
+
+#Create the Data Frame
+categories_df = categories.toDF()
+
+categories_df = categories_df.withColumn("category_name",upper(categories_df["category_name"]))
+categories_df = categories_df.withColumn("description",upper(categories_df["description"]))
+
+categories_df.write.mode('overwrite').format('parquet').save('s3://workshopdev/categories_parquet/categories',header= 'true')
+
+job.commit()
