@@ -16,11 +16,16 @@ table = "categories"
 
 categories = glueContext.create_dynamic_frame_from_catalog(database=database, table_name=table)
 
+#create of dataframe
 
 categories_df = categories.toDF()
 
+# using function upper
+
 categories_df = categories_df.withColumn("category_name",upper(categories_df["category_name"]))
 categories_df = categories_df.withColumn("description",upper(categories_df["description"]))
+
+#using function Trim
 categories_df = categories_df.withColumn("category_name", trim(categories_df["category_name"]))
 categories_df = categories_df.withColumn("description", trim(categories_df["description"]))
 
